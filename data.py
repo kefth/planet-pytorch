@@ -3,7 +3,6 @@ import torch
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-import torchvision.transforms as transforms
 from PIL import Image
 
 def get_labels(fname):
@@ -36,12 +35,3 @@ class PlanetData(Dataset):
         if self.transform:
             img = self.transform(img)
         return img, target
-
-
-trans = transforms.Compose([transforms.ToTensor()])
-test = PlanetData(csv_file='data/train_set_norm.csv', root_dir='data/train-jpg',
-labels_file='data/labels.txt', transform = trans)
-
-for i,(x,y) in enumerate(test):
-    print(x.size(), y.size())
-    break
