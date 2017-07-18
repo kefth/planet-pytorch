@@ -3,8 +3,8 @@ import torch
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import torchvision.transforms as transforms
 from PIL import Image
-from skimage import io
 
 def get_labels(fname):
     with open(fname,'r') as f:
@@ -14,7 +14,6 @@ def get_labels(fname):
     return labels,labels2idx,idx2labels
 
 class PlanetData(Dataset):
-    ''' Planet dataset '''
 
     def __init__(self, csv_file, root_dir, labels_file, transform=None):
         self.data = pd.read_csv(csv_file)
@@ -29,17 +28,20 @@ class PlanetData(Dataset):
 
     def __getitem__(self, idx):
         img_name = os.path.join(self.root_dir, self.data.ix[idx, 0])
-        img = io.imread(img_name + '.jpg')
+        img = Image.open(img_name + '.jpg').convert('RGB')
         labels = self.data.ix[idx, 1]
         target = torch.zeros(self.n_labels)
         label_idx = torch.LongTensor([self.labels2idx[tag] for tag in labels.split(' ')])
         target[label_idx] = 1
+        if self.transform:
+            img = self.transform(img)
         return img, target
 
-test = PlanetData(csv_file='data/train_set_norm.csv', root_dir='data/train-jpg',
-labels_file='data/labels.txt')
 
-for i in range(len(test)):
-    print(test[i])
-    if i==3:
-        break
+trans = transforms.Compose([transforms.ToTensor()])
+test = PlanetData(csv_file='data/train_set_norm.csv', root_dir='data/train-jpg',
+labels_file='data/labels.txt', transform = trans)
+
+for i,(x,y) in enumerate(test):
+    print(x.size(), y.size())
+    break
