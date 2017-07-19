@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import model
 import data
+import utils
 import time
 import argparse
 
@@ -52,7 +53,6 @@ def train(net, loader, criterion, optimizer):
     running_loss = 0
     running_accuracy = 0
 
-    start = time.time()
     for i, (X,y) in enumerate(loader):
         if cuda:
             X, y = X.cuda(), y.cuda()
@@ -64,16 +64,23 @@ def train(net, loader, criterion, optimizer):
         loss.backward()
         optimizer.step()
         running_loss += loss.data[0]
-        output = torch.nn.functional.sigmoid(output)>0.5
-        r = (output == y.byte())
-        acc = r.float().cpu().sum().data[0]
-        running_accuracy += acc/17
+        acc = utils.get_multilabel_accuracy(output, y, args.batch_size, 17)
+        running_accuracy += acc
+        if i%100 == 0:
+            pct = float(i+1)/len(loader)
+            curr_loss = running_loss/(i+1)
+            curr_acc = running_accuracy/(i+1)
+            print('Complete: {:.2f}, Loss: {:.2f}, Accuracy: {:.4f}'.format(pct*100,
+                        curr_loss, curr_acc))
     loss, accuracy = running_loss/len(loader), running_accuracy/len(loader)
     return loss, accuracy
 
 
 if __name__ == '__main__':
     net = model.__dict__[args.model]()
-    optimiser = optim.Adam(net.parameters())
+    if cuda:
+        net = net.cuda()
+    optimizer = optim.Adam(net.parameters())
     criterion = torch.nn.MultiLabelSoftMarginLoss()
-    loss, acc = train(net, train_loader, criterion, optimiser)
+    loss, acc = train(net, train_loader, criterion, optimizer)
+    print(loss, acc)
