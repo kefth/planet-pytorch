@@ -24,21 +24,17 @@ def calculate_feature_size(model, input_size):
             input_size = get_conv_out(layer, input_size)
         elif type(layer) == nn.MaxPool2d:
             input_size = get_pool_out(layer, input_size)
-        # elif type(layer) == nn.Sequential:
-        #     input_size = calculate_feature_size(layer, input_size)
     return input_size
 
-def get_multilabel_accuracy(pred, target, batch_size, n_classes):
-    """ Calculate multilabel accuracy
+def get_multilabel_accuracy(pred, target):
+    """ Calculate multilabel accuracy.
 
         Turn prediction tensor in binary. Compare with target.
-        Calculate common elements and get batch accuracy.
-
-        To be used for calculating running accuracy and total accuracy
-        in training.
+        Calculate common elements. To be used for calculating running
+        accuracy and total accuracy in training.
     """
     # TODO: Check if it is actually correct
     pred = nn.functional.sigmoid(pred)>0.5
     r = (pred == target.byte())
     acc = r.float().cpu().sum().data[0]
-    return acc/(n_classes*batch_size)
+    return acc/(pred.size()[1]*pred.size()[0])

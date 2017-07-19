@@ -15,6 +15,7 @@ parser.add_argument("-patience", type=int, default=5, help="early stopping patie
 parser.add_argument("-batch_size", type=int, default=16, help="batch size")
 parser.add_argument("-nepochs", type=int, default=20, help="max epochs")
 parser.add_argument("-nocuda", action='store_true', help="no cuda used")
+parser.add_argument("-v", action='store_true', help="verbose")
 args = parser.parse_args()
 
 cuda = not args.nocuda and torch.cuda.is_available() # use cuda
@@ -48,7 +49,7 @@ valset = data.PlanetData('data/val_set_norm.csv', 'data/train-jpg',
 val_loader = DataLoader(valset, batch_size=args.batch_size,
                         shuffle=False, num_workers=2)
 
-def train(net, loader, criterion, optimizer):
+def train(net, loader, criterion, optimizer, verbose = False):
     net.train()
     running_loss = 0
     running_accuracy = 0
@@ -64,16 +65,32 @@ def train(net, loader, criterion, optimizer):
         loss.backward()
         optimizer.step()
         running_loss += loss.data[0]
-        acc = utils.get_multilabel_accuracy(output, y, args.batch_size, 17)
+        acc = utils.get_multilabel_accuracy(output, y)
         running_accuracy += acc
-        if i%100 == 0:
+        if i%400 == 0 and verbose:
             pct = float(i+1)/len(loader)
             curr_loss = running_loss/(i+1)
             curr_acc = running_accuracy/(i+1)
             print('Complete: {:.2f}, Loss: {:.2f}, Accuracy: {:.4f}'.format(pct*100,
                         curr_loss, curr_acc))
-    loss, accuracy = running_loss/len(loader), running_accuracy/len(loader)
-    return loss, accuracy
+    return running_loss/len(loader), running_accuracy/len(loader)
+
+def validate(net, loader, criterion):
+    net.eval()
+    running_loss = 0
+    running_accuracy = 0
+
+    for i, (X,y) in enumerate(loader):
+        if cuda:
+            X, y = X.cuda(), y.cuda()
+        X, y = Variable(X, volatile=True), Variable(y)
+
+        output = net(X)
+        loss = criterion(output, y)
+        acc = utils.get_multilabel_accuracy(output, y)
+        running_loss += loss.data[0]
+        running_accuracy += acc
+    return running_loss/len(loader), running_accuracy/len(loader)
 
 
 if __name__ == '__main__':
@@ -82,5 +99,30 @@ if __name__ == '__main__':
         net = net.cuda()
     optimizer = optim.Adam(net.parameters())
     criterion = torch.nn.MultiLabelSoftMarginLoss()
-    loss, acc = train(net, train_loader, criterion, optimizer)
-    print(loss, acc)
+    # early stopping parameters
+    patience = args.patience
+    best_loss = 1e4
+
+    for e in range(args.nepochs):
+        start = time.time()
+        train_loss, train_acc = train(net, train_loader,
+            criterion, optimizer, args.v)
+        val_loss, val_accuracy = validate(net, val_loader, criterion)
+        end = time.time()
+
+        # print stats
+        print('Epoch: {}\t train loss: {:.3f}, train acc: {:.3f}\t'
+                'val loss: {:.3f}, val acc: {:.3f}\t time: {:.1f}s'.format(
+                e, train_loss, train_acc, val_loss, val_accuracy, end-start
+                ))
+
+        #early stopping and save best model
+        if val_loss < best_loss:
+            best_loss = val_loss
+            patience = args.patience
+            torch.save(net.state_dict(), 'saved-models/{}.pth.tar'.format(args.model))
+        else:
+            patience -= 1
+            if patience == 0:
+                print('Run out of patience!')
+                break
