@@ -12,10 +12,11 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-model", type=str, default='PlanetSimpleNet', help="model name")
 parser.add_argument("-patience", type=int, default=5, help="early stopping patience")
-parser.add_argument("-batch_size", type=int, default=16, help="batch size")
+parser.add_argument("-batch_size", type=int, default=64, help="batch size")
 parser.add_argument("-nepochs", type=int, default=20, help="max epochs")
 parser.add_argument("-nocuda", action='store_true', help="no cuda used")
 parser.add_argument("-v", action='store_true', help="verbose")
+parser.add_argument("-nworkers", type=int, default=4, help="number of workers")
 args = parser.parse_args()
 
 cuda = not args.nocuda and torch.cuda.is_available() # use cuda
@@ -43,11 +44,11 @@ else:
 trainset = data.PlanetData('data/train_set_norm.csv', 'data/train-jpg',
                 'data/labels.txt', train_transforms)
 train_loader = DataLoader(trainset, batch_size=args.batch_size,
-                        shuffle=True, num_workers=2)
+                        shuffle=True, num_workers=args.nworkers)
 valset = data.PlanetData('data/val_set_norm.csv', 'data/train-jpg',
                 'data/labels.txt', val_transforms)
 val_loader = DataLoader(valset, batch_size=args.batch_size,
-                        shuffle=False, num_workers=2)
+                        shuffle=False, num_workers=args.nworkers)
 
 def train(net, loader, criterion, optimizer, verbose = False):
     net.train()
@@ -95,10 +96,10 @@ def validate(net, loader, criterion):
 
 if __name__ == '__main__':
     net = model.__dict__[args.model]()
-    if cuda:
-        net = net.cuda()
     optimizer = optim.Adam(net.parameters())
     criterion = torch.nn.MultiLabelSoftMarginLoss()
+    if cuda:
+        net, criterion = net.cuda(), criterion.cuda()
     # early stopping parameters
     patience = args.patience
     best_loss = 1e4

@@ -30,7 +30,7 @@ class PlanetSimpleNet(nn.Module):
         x = self.features(x)
         x = x.view(x.size(0), 256 * 8 * 8)
         x = self.classifier(x)
-        return x
+        return x # TODO: return F.sigmoid
 
 if __name__ == '__main__':
     net = PlanetSimpleNet()
