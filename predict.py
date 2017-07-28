@@ -43,6 +43,16 @@ val_loader = DataLoader(valset, batch_size=args.batch_size,
                         shuffle=False, num_workers=args.nworkers)
 
 
+def fscore(prediction):
+    """ Get the fscore of the validation set. Gives a good indication
+    of score on puclic leaderboard"""
+    target = torch.FloatTensor(0, 17)
+    for i, (_,y) in enumerate(val_loader):
+        target = torch.cat((target, prediction), 0)
+    fscore = fbeta_score(target.numpy(), prediction.numpy() > 0.23,
+                beta=2, average='samples')
+    return fscore
+
 def predict(net, loader):
     net.eval()
     predictions = torch.FloatTensor(0, 17)
@@ -59,6 +69,6 @@ if __name__ == '__main__':
     net.load_state_dict(torch.load('saved-models/{}.pth.tar'.format(args.model)))
     if cuda:
         net = net.cuda()
+
     pred = predict(net, val_loader)
-    fscore = fbeta_score(y_val_full, pred.numpy() > 0.23, beta=2, average='samples')
-    print()
+    print(fscore(pred))
