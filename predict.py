@@ -60,3 +60,5 @@ if __name__ == '__main__':
     if cuda:
         net = net.cuda()
     pred = predict(net, val_loader)
+    fscore = fbeta_score(y_val_full, pred.numpy() > 0.23, beta=2, average='samples')
+    print()
