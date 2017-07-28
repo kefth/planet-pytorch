@@ -71,11 +71,5 @@ if __name__ == '__main__':
         net = net.cuda()
 
     # predict on the validation set to calculate fscore
-    # val_pred = predict(net, val_loader)
-    # print("fscore on validation set: {:.4f}".format(fscore(val_pred)))
-
-    # predict on the test data where we don't know the labels
-    pred = predict(net, test_loader)
-    labels, _, _ = data.get_labels('data/labels.txt')
-    pred = pd.DataFrame(pred.numpy(), columns = labels)
-    print(pred.head())
+    val_pred = predict(net, val_loader)
+    print("fscore on validation set: {:.3f}".format(fscore(val_pred)))
