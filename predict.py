@@ -18,9 +18,8 @@ args = parser.parse_args()
 
 cuda = not args.nocuda and torch.cuda.is_available() # use cuda
 
-# Rescale to 64x64 for simple net. Validation set used for thresholds.
-
-# Rescale to 64x64 for simple net. 224 otherwise.
+# Rescale to 64x64 for simple net. Validation set used for fscore.
+# 224x224 for pretrained models.
 if args.model=='PlanetSimpleNet':
     test_transforms = transforms.Compose([transforms.Scale(64),
                                 transforms.ToTensor()])
@@ -71,5 +70,9 @@ if __name__ == '__main__':
         net = net.cuda()
 
     # predict on the validation set to calculate fscore
-    pred = predict(net, val_loader)
-    print("fscore on validation set: {:.4f}".format(fscore(pred)))
+    val_pred = predict(net, val_loader)
+    print("fscore on validation set: {:.4f}".format(fscore(val_pred)))
+
+    # predict on the test data where we don't know the labels
+    pred = predict(net, train_loader)
+    print(pred.size())
