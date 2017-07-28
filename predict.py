@@ -70,5 +70,6 @@ if __name__ == '__main__':
     if cuda:
         net = net.cuda()
 
+    # predict on the validation set to calculate fscore
     pred = predict(net, val_loader)
-    print(fscore(pred))
+    print("fscore on validation set:".format(fscore(pred)))
