@@ -97,7 +97,7 @@ def validate(net, loader, criterion):
 if __name__ == '__main__':
     net = model.__dict__[args.model]()
     optimizer = optim.Adam(net.parameters())
-    criterion = torch.nn.MultiLabelSoftMarginLoss()
+    criterion = torch.nn.BCELoss()
     if cuda:
         net, criterion = net.cuda(), criterion.cuda()
     # early stopping parameters

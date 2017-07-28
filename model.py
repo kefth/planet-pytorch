@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch.nn.functional as F
 import utils
 class PlanetSimpleNet(nn.Module):
 
@@ -32,7 +33,7 @@ class PlanetSimpleNet(nn.Module):
         x = self.features(x)
         x = x.view(x.size(0), 256 * 8 * 8)
         x = self.classifier(x)
-        return x # TODO: return F.sigmoid
+        return F.sigmoid(x)
 
 if __name__ == '__main__':
     net = PlanetSimpleNet()
