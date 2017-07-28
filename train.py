@@ -8,6 +8,7 @@ import data
 import utils
 import time
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-model", type=str, default='PlanetSimpleNet', help="model name")
@@ -17,10 +18,39 @@ parser.add_argument("-nepochs", type=int, default=20, help="max epochs")
 parser.add_argument("-nocuda", action='store_true', help="no cuda used")
 parser.add_argument("-v", action='store_true', help="verbose")
 parser.add_argument("-nworkers", type=int, default=4, help="number of workers")
+parser.add_argument("-seed", type=int, default=1, help="random seed(def:1)")
 args = parser.parse_args()
 
 cuda = not args.nocuda and torch.cuda.is_available() # use cuda
 
+# Set seeds. If using numpy this must be seeded too.
+torch.manual_seed(args.seed)
+if cuda:
+    torch.cuda.manual_seed(args.seed)
+
+# Setup tensorboard folders. Each run must have it's own folder. It creates
+# a logs folder for each model rather than each run of a model. Demonstration purposes.
+out_dir = 'logs/{}'.format(args.model)
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+    os.mkdir('{}/train'.format(out_dir))
+    os.mkdir('{}/val'.format(out_dir))
+logfile = open('{}/log.txt'.format(out_dir), 'w')
+print(args, file=logfile)
+
+# Tensorboard viz. tensorboard --logdir {yourlogdir}. Requires tensorflow.
+# from tensorboard_logger import configure, log_value
+# configure(out_dir, flush_secs=5)
+
+import tensorboard_logger as tl
+train_viz = tl.Logger('{}/train'.format(out_dir), flush_secs=5)
+val_viz = tl.Logger('{}/val'.format(out_dir), flush_secs=5)
+
+# Setup folders for saved models
+if not os.path.exists('saved-models/'):
+    os.mkdir('saved-models/')
+
+print(args, file=logfile)
 # Get all model names
 model_names = sorted(name for name in model.__dict__
     if name.startswith("Planet")
@@ -40,15 +70,16 @@ else:
     val_transforms = transforms.Compose([transforms.Scale(224),
                             transforms.ToTensor()])
 
-# Create dataloaders
+# Create dataloaders. Use pin memory if cuda.
+kwargs = {'pin_memory': True} if cuda else {}
 trainset = data.PlanetData('data/train_set_norm.csv', 'data/train-jpg',
                 'data/labels.txt', train_transforms)
 train_loader = DataLoader(trainset, batch_size=args.batch_size,
-                        shuffle=True, num_workers=args.nworkers)
+                        shuffle=True, num_workers=args.nworkers, **kwargs)
 valset = data.PlanetData('data/val_set_norm.csv', 'data/train-jpg',
                 'data/labels.txt', val_transforms)
 val_loader = DataLoader(valset, batch_size=args.batch_size,
-                        shuffle=False, num_workers=args.nworkers)
+                        shuffle=False, num_workers=args.nworkers, **kwargs)
 
 def train(net, loader, criterion, optimizer, verbose = False):
     net.train()
@@ -104,18 +135,25 @@ if __name__ == '__main__':
     patience = args.patience
     best_loss = 1e4
 
+    # Print model to logfile
+    print(net, file=logfile)
+
     for e in range(args.nepochs):
         start = time.time()
         train_loss, train_acc = train(net, train_loader,
             criterion, optimizer, args.v)
-        val_loss, val_accuracy = validate(net, val_loader, criterion)
+        val_loss, val_acc = validate(net, val_loader, criterion)
         end = time.time()
 
         # print stats
-        print('Epoch: {}\t train loss: {:.3f}, train acc: {:.3f}\t'
-                'val loss: {:.3f}, val acc: {:.3f}\t time: {:.1f}s'.format(
-                e, train_loss, train_acc, val_loss, val_accuracy, end-start
-                ))
+        stats ="""Epoch: {}\t train loss: {:.3f}, train acc: {:.3f}\t
+                val loss: {:.3f}, val acc: {:.3f}\t time: {:.1f}s""".format(
+                e, train_loss, train_acc, val_loss, val_acc, end-start
+                )
+        print(stats)
+        print(stats, file=logfile)
+        train_viz.log_value('loss', train_loss, e)
+        val_viz.log_value('loss', val_loss, e)
 
         #early stopping and save best model
         if val_loss < best_loss:
