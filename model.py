@@ -29,7 +29,7 @@ def calculate_feature_size(model, input_size):
     return input_size
 
 class PlanetSimpleNet(nn.Module):
-    """Simple 5 layer convnet."""
+    """Simple convnet."""
 
     def __init__(self):
         super().__init__()
