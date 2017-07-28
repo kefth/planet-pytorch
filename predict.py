@@ -72,4 +72,4 @@ if __name__ == '__main__':
 
     # predict on the validation set to calculate fscore
     pred = predict(net, val_loader)
-    print("fscore on validation set:".format(fscore(pred)))
+    print("fscore on validation set: {}".format(fscore(pred)))
