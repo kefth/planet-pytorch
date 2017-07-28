@@ -48,7 +48,7 @@ def fscore(prediction):
     of score on puclic leaderboard"""
     target = torch.FloatTensor(0, 17)
     for i, (_,y) in enumerate(val_loader):
-        target = torch.cat((target, prediction), 0)
+        target = torch.cat((target, y), 0)
     fscore = fbeta_score(target.numpy(), prediction.numpy() > 0.23,
                 beta=2, average='samples')
     return fscore
