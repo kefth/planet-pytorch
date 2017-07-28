@@ -74,5 +74,5 @@ if __name__ == '__main__':
     print("fscore on validation set: {:.4f}".format(fscore(val_pred)))
 
     # predict on the test data where we don't know the labels
-    pred = predict(net, train_loader)
+    pred = predict(net, test_loader)
     print(pred.size())
