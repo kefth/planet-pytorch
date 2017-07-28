@@ -76,5 +76,6 @@ if __name__ == '__main__':
 
     # predict on the test data where we don't know the labels
     pred = predict(net, test_loader)
+    labels, _, _ = data.get_labels('data/labels.txt')
     pred = pd.DataFrame(pred.numpy(), columns = labels)
-    print(pred.shape)
+    print(pred.top())
