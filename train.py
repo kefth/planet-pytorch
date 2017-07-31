@@ -41,7 +41,6 @@ print(args, file=logfile)
 # Tensorboard viz. tensorboard --logdir {yourlogdir}. Requires tensorflow.
 # from tensorboard_logger import configure, log_value
 # configure(out_dir, flush_secs=5)
-
 import tensorboard_logger as tl
 train_viz = tl.Logger('{}/train'.format(out_dir), flush_secs=5)
 val_viz = tl.Logger('{}/val'.format(out_dir), flush_secs=5)
@@ -50,7 +49,6 @@ val_viz = tl.Logger('{}/val'.format(out_dir), flush_secs=5)
 if not os.path.exists('saved-models/'):
     os.mkdir('saved-models/')
 
-print(args, file=logfile)
 # Get all model names
 model_names = sorted(name for name in model.__dict__
     if name.startswith("Planet")
@@ -152,7 +150,7 @@ if __name__ == '__main__':
                 )
         print(stats)
         print(stats, file=logfile)
-        train_viz.log_value('loss', train_loss, e)
+        train_viz.log_value('loss', train_loss, e)#same name to apper on single graph.
         val_viz.log_value('loss', val_loss, e)
 
         #early stopping and save best model
