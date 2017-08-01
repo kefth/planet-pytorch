@@ -22,7 +22,12 @@ Here we only use the jpg images. Note that the `test-jpg` and `test-additional-j
 
 ### Training
 `python train.py`
-Default model is PlanetSimpleNet and images are scaled for this model to `64x64`. For help `python train.py -h`. Models are saved in `save-models` using the model name and the training run.
+
+Default model is PlanetSimpleNet and images are scaled for this model to `64x64`. For help 
+
+`python train.py -h`
+
+Models are saved in `save-models` using the model name and the training run.
 
 ### Logging
 Logs are saved in the `logs` folder. Each model in its own folder with a folder for each run. 
