@@ -23,6 +23,7 @@ parser.add_argument("-seed", type=int, default=1, help="random seed(def:1)")
 args = parser.parse_args()
 
 cuda = not args.nocuda and torch.cuda.is_available() # use cuda
+print('Training on cuda: {}'.format(cuda))
 
 # Set seeds. If using numpy this must be seeded too.
 torch.manual_seed(args.seed)
@@ -53,7 +54,7 @@ print(args, file=logfile)
 
 # Tensorboard viz. tensorboard --logdir {yourlogdir}. Requires tensorflow.
 from tensorboard_logger import configure, log_value
-configure(out_dir, flush_secs=5)
+configure(current_logs_dir, flush_secs=5)
 
 # Get all model names
 model_names = sorted(name for name in model.__dict__
