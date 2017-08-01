@@ -8,10 +8,10 @@ This repository's main objective is to serve as a starting point to [PyTorch](ht
 - Predicting on new images.
 
 ### Requirements
-- `PyTorch`. For installation refer to http://pytorch.org/.
-- For visualization `TensorFlow` is required. CPU version is enough. For installation https://www.tensorflow.org/.
-- `tensorboard_logger`. To install `pip install tensorboard_logger`. For usage [click here](https://github.com/TeamHG-Memex/tensorboard_logger).
-- Only `Python 3+` is supported.
+- PyTorch. For installation refer to http://pytorch.org/.
+- TensorFlow is required for visualization. CPU version is enough. For installation https://www.tensorflow.org/.
+- Tensorboard logger. To install `pip install tensorboard_logger`. For usage [click here](https://github.com/TeamHG-Memex/tensorboard_logger).
+- Only Python 3+ is supported.
 
 ### Data
 The data we are using are taken from [Planet: Understanding the Amazon from Space](https://www.kaggle.com/c/planet-understanding-the-amazon-from-space) Kaggle competition. More info can be found at the competition website. In a nutshell we want to label satellite image chips with atmospheric conditions and various classes of land cover/land use. It is a multi-labeling problem with 17 different classes. In the competition algorithms were scored using the mean F2 score.
