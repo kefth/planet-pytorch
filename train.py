@@ -125,12 +125,13 @@ def validate(net, loader, criterion):
         output = net(X)
         loss = criterion(output, y)
         acc = utils.get_multilabel_accuracy(output, y)
-        targets = torch.cat(targets, y.cpu().data)
-        predictions = torch.cat(predictions,output.cpu().data)
+        # targets = torch.cat(targets, y.cpu().data)
+        # predictions = torch.cat(predictions,output.cpu().data)
         running_loss += loss.data[0]
         running_accuracy += acc
-    fscore = fbeta_score(targets.numpy(), predictions.numpy() > 0.23,
-                beta=2, average='samples')
+    fscore = 0
+    # fscore = fbeta_score(targets.numpy(), predictions.numpy() > 0.23,
+    #             beta=2, average='samples')
     return running_loss/len(loader), running_accuracy/len(loader), fscore
 
 
