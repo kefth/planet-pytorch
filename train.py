@@ -42,7 +42,7 @@ if not os.path.exists(out_dir):
     os.mkdir(out_dir)
 run = 0
 current_dir = '{}/run-{}'.format(out_dir, run)
-while os.path.exists(base_dir):
+while os.path.exists(current_dir):
 	run += 1
 	current_dir = '{}/run-{}'.format(out_dir, run)
 os.mkdir(current_dir)
