@@ -16,6 +16,8 @@ This repository's main objective is to serve as a starting point to [PyTorch](ht
 ## Data
 The data we are using are taken from [Planet: Understanding the Amazon from Space](https://www.kaggle.com/c/planet-understanding-the-amazon-from-space) Kaggle competition. More info can be found at the competition website. In a nutshell we want to label satellite image chips with atmospheric conditions and various classes of land cover/land use. It is a multi-labeling problem with 17 different classes. In the competition algorithms were scored using the mean F2 score.
 
+![labels](images/labels.png)
+
 Here we only use the jpg images. Note that the `test-jpg` and `test-additional-jpg` need to be merged for prediction. The data can still be downloaded [here](https://www.kaggle.com/c/planet-understanding-the-amazon-from-space/data). The `csv` files don't need to be downloaded as we provide our own for train and validation set.
 
 ## Training
