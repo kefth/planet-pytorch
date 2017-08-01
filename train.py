@@ -47,6 +47,7 @@ while os.path.exists(current_dir):
 	current_dir = '{}/run-{}'.format(out_dir, run)
 os.mkdir(current_dir)
 current_logs_dir = '{}/logs'.format(current_dir)
+os.mkdir(current_logs_dir)
 logfile = open('{}/log.txt'.format(current_logs_dir), 'w')
 print(args, file=logfile)
 
