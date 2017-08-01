@@ -25,13 +25,20 @@ Here we only use the jpg images. Note that the `test-jpg` and `test-additional-j
 Default model is PlanetSimpleNet and images are scaled for this model to `64x64`. For help `python train.py -h`. Models are saved in `save-models` using the model name and the training run.
 
 ## Logging
-Logs are save in the `logs` folder. Each model in its own folder with a folder for each run. 
+Logs are saved in the `logs` folder. Each model in its own folder with a folder for each run. 
 `tensorboard --logdir yourlogdir` will start tensorboard. For remote working add the following to `.ssh/config` for tunneling:
 ```
-Host hostname
-        HostName host address/IP
+Host name
+        HostName hostaddress
         User username
-        IdentityFile ~/.ssh/{id_rsa}
+        IdentityFile path_to_id_rsa
         LocalForward 8888 127.0.0.1:6006
 ```
 Tensorboard can be viewed at `127.0.0.1:8888` in your browser.
+
+### Progress
+- [x] Dataloader with transformations.
+- [x] Simple convolutional network.
+- [ ] Pretrained models.
+- [x] Tensorboard integration.
+- [ ] Prediction to csv.
