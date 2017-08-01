@@ -27,7 +27,7 @@ Default model is PlanetSimpleNet and images are scaled for this model to `64x64`
 
 `python train.py -h`
 
-Models are saved in `save-models` using the model name and the training run.
+Models are saved in `saved-models` using the model name and the training run.
 
 ### Logging
 Logs are saved in the `logs` folder. Each model in its own folder with a folder for each run. 
