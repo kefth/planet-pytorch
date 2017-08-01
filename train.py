@@ -159,9 +159,9 @@ if __name__ == '__main__':
                 val_acc, fscore, end-start)
         print(stats)
         print(stats, file=logfile)
-        log_value('loss', train_loss, e)#same name to apper on single graph.
-        log_value('loss', val_loss, e)
-        log_value('fscore', fscore)
+        log_value('train_loss', train_loss, e)#same name to apper on single graph.
+        log_value('val_loss', val_loss, e)
+        log_value('fscore', fscore, e)
 
         #early stopping and save best model
         if val_loss < best_loss:
