@@ -47,14 +47,12 @@ while os.path.exists(current_dir):
 	run += 1
 	current_dir = '{}/run-{}'.format(out_dir, run)
 os.mkdir(current_dir)
-current_logs_dir = '{}/logs'.format(current_dir)
-os.mkdir(current_logs_dir)
-logfile = open('{}/log.txt'.format(current_logs_dir), 'w')
+logfile = open('{}/log.txt'.format(current_dir), 'w')
 print(args, file=logfile)
 
 # Tensorboard viz. tensorboard --logdir {yourlogdir}. Requires tensorflow.
-from tensorboard_logger import configure, log_value
-configure(current_logs_dir, flush_secs=5)
+# from tensorboard_logger import configure, log_value
+# configure(current_dir, flush_secs=5)
 
 # Get all model names
 model_names = sorted(name for name in model.__dict__
@@ -161,9 +159,9 @@ if __name__ == '__main__':
                 val_acc, fscore, end-start)
         print(stats)
         print(stats, file=logfile)
-        log_value('loss', train_loss, e)#same name to apper on single graph.
-        log_value('loss', val_loss, e)
-        log_value('fscore', fscore)
+        # log_value('loss', train_loss, e)#same name to apper on single graph.
+        # log_value('loss', val_loss, e)
+        # log_value('fscore', fscore)
 
         #early stopping and save best model
         if val_loss < best_loss:
