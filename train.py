@@ -3,6 +3,7 @@ import torchvision.transforms as transforms
 from torch.autograd import Variable
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from sklearn.metrics import fbeta_score
 import model
 import data
 import utils
@@ -28,26 +29,30 @@ torch.manual_seed(args.seed)
 if cuda:
     torch.cuda.manual_seed(args.seed)
 
+# Setup folders for saved models and logs
+if not os.path.exists('saved-models/'):
+    os.mkdir('saved-models/')
+if not os.path.exists('logs/'):
+    os.mkdir('logs/')
+
 # Setup tensorboard folders. Each run must have it's own folder. It creates
-# a logs folder for each model rather than each run of a model. Demonstration purposes.
+# a logs folder for each model and each run.
 out_dir = 'logs/{}'.format(args.model)
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
-    os.mkdir('{}/train'.format(out_dir))
-    os.mkdir('{}/val'.format(out_dir))
-logfile = open('{}/log.txt'.format(out_dir), 'w')
+run = 0
+current_dir = '{}/run-{}'.format(out_dir, run)
+while os.path.exists(base_dir):
+	run += 1
+	current_dir = '{}/run-{}'.format(out_dir, run)
+os.mkdir(current_dir)
+current_logs_dir = '{}/logs'.format(current_dir)
+logfile = open('{}/log.txt'.format(current_logs_dir), 'w')
 print(args, file=logfile)
 
 # Tensorboard viz. tensorboard --logdir {yourlogdir}. Requires tensorflow.
-# from tensorboard_logger import configure, log_value
-# configure(out_dir, flush_secs=5)
-import tensorboard_logger as tl
-train_viz = tl.Logger('{}/train'.format(out_dir), flush_secs=5)
-val_viz = tl.Logger('{}/val'.format(out_dir), flush_secs=5)
-
-# Setup folders for saved models
-if not os.path.exists('saved-models/'):
-    os.mkdir('saved-models/')
+from tensorboard_logger import configure, log_value
+configure(out_dir, flush_secs=5)
 
 # Get all model names
 model_names = sorted(name for name in model.__dict__
@@ -109,18 +114,22 @@ def validate(net, loader, criterion):
     net.eval()
     running_loss = 0
     running_accuracy = 0
-
+    targets = torch.FloatTensor(0,17) # For fscore calculation
+    predictions = torch.FloatTensor(0,17)
     for i, (X,y) in enumerate(loader):
         if cuda:
             X, y = X.cuda(), y.cuda()
         X, y = Variable(X, volatile=True), Variable(y)
-
         output = net(X)
         loss = criterion(output, y)
         acc = utils.get_multilabel_accuracy(output, y)
+        targets = torch.cat(targets, y.cpu().data)
+        predictions = torch.cat(predictions,output.cpu().data)
         running_loss += loss.data[0]
         running_accuracy += acc
-    return running_loss/len(loader), running_accuracy/len(loader)
+    fscore = fbeta_score(targets.numpy(), predictions.numpy() > 0.23,
+                beta=2, average='samples')
+    return running_loss/len(loader), running_accuracy/len(loader), fscore
 
 
 if __name__ == '__main__':
@@ -140,24 +149,25 @@ if __name__ == '__main__':
         start = time.time()
         train_loss, train_acc = train(net, train_loader,
             criterion, optimizer, args.v)
-        val_loss, val_acc = validate(net, val_loader, criterion)
+        val_loss, val_acc, fscore = validate(net, val_loader, criterion)
         end = time.time()
 
         # print stats
         stats ="""Epoch: {}\t train loss: {:.3f}, train acc: {:.3f}\t
-                val loss: {:.3f}, val acc: {:.3f}\t time: {:.1f}s""".format(
-                e, train_loss, train_acc, val_loss, val_acc, end-start
-                )
+                val loss: {:.3f}, val acc: {:.3f}\t fscore: {:.3f}\t
+                time: {:.1f}s""".format( e, train_loss, train_acc, val_loss,
+                val_acc, fscore, end-start)
         print(stats)
         print(stats, file=logfile)
-        train_viz.log_value('loss', train_loss, e)#same name to apper on single graph.
-        val_viz.log_value('loss', val_loss, e)
+        log_value('loss', train_loss, e)#same name to apper on single graph.
+        log_value('loss', val_loss, e)
+        log_value('fscore', fscore)
 
         #early stopping and save best model
         if val_loss < best_loss:
             best_loss = val_loss
             patience = args.patience
-            torch.save(net.state_dict(), 'saved-models/{}.pth.tar'.format(args.model))
+            torch.save(net.state_dict(), 'saved-models/{}-run-{}.pth.tar'.format(args.model, run))
         else:
             patience -= 1
             if patience == 0:

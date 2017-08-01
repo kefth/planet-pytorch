@@ -33,7 +33,6 @@ def get_multilabel_accuracy(pred, target):
         Calculate common elements. To be used for calculating running
         accuracy and total accuracy in training.
     """
-    # TODO: Check if it is actually correct
     pred = pred > 0.5
     r = (pred == target.byte())
     acc = r.float().cpu().sum().data[0]
