@@ -43,4 +43,4 @@ Tensorboard can be viewed at `127.0.0.1:8888` in your browser.
 - [x] Simple convolutional network.
 - [ ] Pretrained models.
 - [x] Tensorboard integration.
-- [ ] Prediction to csv.
+- [ ] Predict labels on test images.
