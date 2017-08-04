@@ -18,16 +18,13 @@ The data we are using are taken from [Planet: Understanding the Amazon from Spac
 
 ![labels](images/labels.png)
 
-Here we only use the jpg images. Note that the `test-jpg` and `test-additional-jpg` need to be merged for prediction. The data can still be downloaded [here](https://www.kaggle.com/c/planet-understanding-the-amazon-from-space/data). The `csv` files don't need to be downloaded as we provide our own for train and validation set.
+Here we only use the jpg images. Note that the `test-jpg/` and `test-additional-jpg/` need to be merged for prediction. The data can still be downloaded [here](https://www.kaggle.com/c/planet-understanding-the-amazon-from-space/data). The `csv` files don't need to be downloaded as we provide our own for train and validation set.
 
 ### Training
-`python train.py`
 
-Default model is PlanetSimpleNet and images are scaled for this model to `64x64`. For help 
+`python train.py -h` for arguments.
 
-`python train.py -h`
-
-Models are saved in `saved-models` using the model name and the training run.
+Default model is PlanetSimpleNet and images are scaled for this model to `64x64`. Models are saved in `saved-models/` using the model name and the training run.
 
 ### Logging
 Logs are saved in the `logs` folder. Each model in its own folder with a folder for each run. 
