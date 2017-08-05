@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 def get_conv_out(layer, input_size):
@@ -37,3 +38,8 @@ def get_multilabel_accuracy(pred, target):
     r = (pred == target.byte())
     acc = r.float().cpu().sum().data[0]
     return acc/(pred.size()[1]*pred.size()[0])
+
+def save_model(model_state, filename):
+    """ Save model """
+    # TODO: add it as checkpoint
+    torch.save(model_state,filename)

@@ -12,10 +12,10 @@ import argparse
 import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, default='PlanetSimpleNet', help="model name")
+parser.add_argument("--model", type=str, default='PlanetSimpleNet', help="model: PlanetSimpleNet")
 parser.add_argument("--patience", type=int, default=5, help="early stopping patience")
 parser.add_argument("--batch_size", type=int, default=64, help="batch size")
-parser.add_argument("--nepochs", type=int, default=20, help="max epochs")
+parser.add_argument("--nepochs", type=int, default=200, help="max epochs")
 parser.add_argument("--nocuda", action='store_true', help="no cuda used")
 parser.add_argument("-v", action='store_true', help="verbose")
 parser.add_argument("--nworkers", type=int, default=4, help="number of workers")
@@ -36,7 +36,7 @@ if not os.path.exists('saved-models/'):
 if not os.path.exists('logs/'):
     os.mkdir('logs/')
 
-# Setup tensorboard folders. Each run must have it's own folder. It creates
+# Setup tensorboard folders. Each run must have it's own folder. Creates
 # a logs folder for each model and each run.
 out_dir = 'logs/{}'.format(args.model)
 if not os.path.exists(out_dir):
@@ -134,8 +134,8 @@ def validate(net, loader, criterion):
 
 if __name__ == '__main__':
     net = model.__dict__[args.model]()
-    optimizer = optim.Adam(net.parameters())
     criterion = torch.nn.BCELoss()
+
     if cuda:
         net, criterion = net.cuda(), criterion.cuda()
     # early stopping parameters
@@ -144,6 +144,12 @@ if __name__ == '__main__':
 
     # Print model to logfile
     print(net, file=logfile)
+
+    # Change optimizer for finetuning
+    if args.model=='PlanetSimpleNet':
+        optimizer = optim.Adam(net.parameters())
+    else:
+        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     for e in range(args.nepochs):
         start = time.time()
@@ -159,7 +165,7 @@ if __name__ == '__main__':
                 val_acc, fscore, end-start)
         print(stats)
         print(stats, file=logfile)
-        log_value('train_loss', train_loss, e)#same name to apper on single graph.
+        log_value('train_loss', train_loss, e) #same name to appear on single graph.
         log_value('val_loss', val_loss, e)
         log_value('fscore', fscore, e)
 
@@ -167,7 +173,10 @@ if __name__ == '__main__':
         if val_loss < best_loss:
             best_loss = val_loss
             patience = args.patience
-            torch.save(net.state_dict(), 'saved-models/{}-run-{}.pth.tar'.format(args.model, run))
+            utils.save_model({
+                'arch': args.model,
+                'state_dict': net.state_dict()
+            }, 'saved-models/{}-run-{}.pth.tar'.format(args.model, run))
         else:
             patience -= 1
             if patience == 0:
