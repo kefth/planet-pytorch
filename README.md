@@ -41,6 +41,6 @@ Tensorboard can be viewed at `127.0.0.1:8888` in your browser.
 #### Progress
 - [x] Dataloader with transformations.
 - [x] Simple convolutional network.
-- [ ] Pretrained models.
+- [x] Pretrained models.
 - [x] Tensorboard integration.
-- [ ] Predict labels on test images.
+- [x] Predict labels on test images.
