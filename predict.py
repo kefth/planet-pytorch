@@ -22,7 +22,7 @@ cuda = not args.nocuda and torch.cuda.is_available() # use cuda
 print('...predicting on cuda: {}'.format(cuda))
 
 # Define transformations
-test_transforms = transforms.Compose([transforms.RandomCrop(args.scale),
+test_transforms = transforms.Compose([transforms.Scale(args.scale),
                         transforms.ToTensor()])
 val_transforms = transforms.Compose([transforms.Scale(args.scale),
                         transforms.ToTensor()])

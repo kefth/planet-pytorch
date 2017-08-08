@@ -13,7 +13,13 @@ class PlanetSimpleNet(nn.Module):
     def __init__(self):
         super().__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(3, 8, kernel_size=1, stride=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(8, 16, kernel_size=1, stride=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(16, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
@@ -25,7 +31,7 @@ class PlanetSimpleNet(nn.Module):
         )
         self.classifier = nn.Sequential(
             nn.Dropout(),
-            nn.Linear(256 * 8 * 8, 512),
+            nn.Linear(256 * 7 * 7, 512),
             nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(512, 256),
@@ -35,7 +41,7 @@ class PlanetSimpleNet(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), 256 * 8 * 8)
+        x = x.view(x.size(0), 256 * 7 * 7)
         x = self.classifier(x)
         return F.sigmoid(x)
 
@@ -57,5 +63,6 @@ class PlanetResNet18(nn.Module):
         return F.sigmoid(x)
 
 if __name__ == '__main__':
-    net = PlanetResNet18()
-    print(net)
+    net = PlanetSimpleNet()
+    size = utils.calculate_feature_size(net.features,(224,224))
+    print(size)

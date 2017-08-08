@@ -65,6 +65,9 @@ model_names = sorted(name for name in model.__dict__
                                     #  std=[0.229, 0.224, 0.225])
 train_transforms = transforms.Compose([transforms.RandomCrop(224),
                         transforms.RandomHorizontalFlip(),
+                        utils.RandomRotation(),
+                        utils.RandomTranslation(),
+                        utils.RandomVerticalFlip(),
                         transforms.ToTensor()])
 val_transforms = transforms.Compose([transforms.Scale(224),
                         transforms.ToTensor()])
