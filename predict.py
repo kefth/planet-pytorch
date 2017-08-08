@@ -12,7 +12,7 @@ import pandas as pd
 parser = argparse.ArgumentParser()
 parser.add_argument("model", type=str, help="saved model")
 parser.add_argument("--batch_size", type=int, default=64, help="batch size")
-parser.add_argument("--scale", type=int, default=64, help="image scaling")
+parser.add_argument("--scale", type=int, default=224, help="image scaling")
 parser.add_argument("--nocuda", action='store_true', help="no cuda used")
 parser.add_argument("--nworkers", type=int, default=4, help="number of workers")
 parser.add_argument("--output_file", type=str, default="pred.csv", help="output file")

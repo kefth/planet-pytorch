@@ -59,19 +59,15 @@ model_names = sorted(name for name in model.__dict__
     if name.startswith("Planet")
     and callable(model.__dict__[name]))
 
-# Rescale to 64x64 for simple net. 224 otherwise.
-if args.model=='PlanetSimpleNet':
-    train_transforms = transforms.Compose([transforms.Scale(64),
-                                transforms.RandomHorizontalFlip(),
-                                transforms.ToTensor()])
-    val_transforms = transforms.Compose([transforms.Scale(64),
-                                transforms.ToTensor()])
-else:
-    train_transforms = transforms.Compose([transforms.RandomCrop(224),
-                            transforms.RandomHorizontalFlip(),
-                            transforms.ToTensor()])
-    val_transforms = transforms.Compose([transforms.Scale(224),
-                            transforms.ToTensor()])
+# Define transforms. Pretrained models expect input of at least 224x224.
+# If using pretrained models this should also be added.
+# normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                    #  std=[0.229, 0.224, 0.225])
+train_transforms = transforms.Compose([transforms.RandomCrop(224),
+                        transforms.RandomHorizontalFlip(),
+                        transforms.ToTensor()])
+val_transforms = transforms.Compose([transforms.Scale(224),
+                        transforms.ToTensor()])
 
 # Create dataloaders. Use pin memory if cuda.
 kwargs = {'pin_memory': True} if cuda else {}
@@ -165,7 +161,7 @@ if __name__ == '__main__':
                 val_acc, fscore, end-start)
         print(stats)
         print(stats, file=logfile)
-        log_value('train_loss', train_loss, e) #same name to appear on single graph.
+        log_value('train_loss', train_loss, e)
         log_value('val_loss', val_loss, e)
         log_value('fscore', fscore, e)
 
