@@ -7,7 +7,7 @@ import utils
 
 class PlanetSimpleNet(nn.Module):
 
-    """Simple 3 layer convnet. Assumes 64x64 input"""
+    """Simple convnet """"
 
 
     def __init__(self):

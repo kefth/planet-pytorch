@@ -19,7 +19,7 @@ parser.add_argument("--nepochs", type=int, default=200, help="max epochs")
 parser.add_argument("--nocuda", action='store_true', help="no cuda used")
 parser.add_argument("-v", action='store_true', help="verbose")
 parser.add_argument("--nworkers", type=int, default=4, help="number of workers")
-parser.add_argument("--seed", type=int, default=1, help="random seed(def:1)")
+parser.add_argument("--seed", type=int, default=1, help="random seed")
 args = parser.parse_args()
 
 cuda = not args.nocuda and torch.cuda.is_available() # use cuda
