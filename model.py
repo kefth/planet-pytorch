@@ -7,7 +7,7 @@ import utils
 
 class PlanetSimpleNet(nn.Module):
 
-    """Simple convnet """"
+    """Simple convnet """
 
 
     def __init__(self):
