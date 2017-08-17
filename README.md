@@ -3,7 +3,7 @@
 This repository's main objective is to serve as a starting point to [PyTorch](http://pytorch.org/). The parts that are covered are:
 - A simple data loader that inherits `torch.utils.data.Dataset`. Adds default transformations from `torchvision.transforms`.
 - Definition of a simple convolutional network and all necessary building blocks for training/validation.
-- Loading pretrained models e.g. DenseNet, ResNet, VGG and finetuning.
+- Loading pretrained models e.g. ResNet
 - Visualizing training in tensorboard.
 - Predicting on new images.
 
@@ -22,9 +22,19 @@ Here we only use the jpg images. Note that the `test-jpg/` and `test-additional-
 
 ### Training
 
-`python train.py -h` for arguments.
+```
+python train.py
 
-Default model is PlanetSimpleNet and images are scaled for this model to `64x64`. Models are saved in `saved-models/` using the model name and the training run.
+        --model         # specify model, (PlanetSimpleNet, PlanetResNet18)
+        --patience      # early stopping
+        --batch_size    # batch size
+        --nepochs       # max epochs
+        --nocuda        # no cuda
+        -v              # verbose, extra info during training
+        --nworkers      # number of workers
+        --seed          # random seed
+```
+Models are saved in `saved-models/` using the model name and the training run. Note that input images should be at least 224x224 as it is a requirement for pretrained models. Pretrained models are finetuned with a small learning rate.
 
 ### Logging
 Logs are saved in the `logs` folder. Each model in its own folder with a folder for each run. 
@@ -37,6 +47,18 @@ Host name
         LocalForward 8888 127.0.0.1:6006
 ```
 Tensorboard can be viewed at `127.0.0.1:8888` in your browser.
+
+### Predicting
+```
+python predict.py <saved_model>
+
+        --batch_size    # batch size
+        --nocuda        # no cuda
+        --nworkers      # number of workers
+        --output_file   # naming for output csv
+```
+
+Default saved model to load is PlanetSimpleNet. This should give you around 0.87 in the public leaderboard. PlanetResNet18 should give around 0.92.
 
 #### Progress
 - [x] Dataloader with transformations.
