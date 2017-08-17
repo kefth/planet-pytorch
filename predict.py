@@ -22,6 +22,9 @@ cuda = not args.nocuda and torch.cuda.is_available() # use cuda
 print('...predicting on cuda: {}'.format(cuda))
 
 # Define transformations
+# If using pretrained models normalization should also be added.
+# normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                    #  std=[0.229, 0.224, 0.225])
 test_transforms = transforms.Compose([transforms.Scale(args.scale),
                         transforms.ToTensor()])
 val_transforms = transforms.Compose([transforms.Scale(args.scale),

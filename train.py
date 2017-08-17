@@ -60,7 +60,7 @@ model_names = sorted(name for name in model.__dict__
     and callable(model.__dict__[name]))
 
 # Define transforms. Pretrained models expect input of at least 224x224.
-# If using pretrained models this should also be added.
+# If using pretrained models normalization should also be added.
 # normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                     #  std=[0.229, 0.224, 0.225])
 train_transforms = transforms.Compose([transforms.RandomCrop(224),
