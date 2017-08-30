@@ -29,6 +29,44 @@ def calculate_feature_size(model, input_size):
             input_size = get_pool_out(layer, input_size)
     return input_size
 
+
+
+
+
+###         Training Utils
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+def accuracy(output, target, topk=(1,)):
+    """Computes the precision@k for the specified values of k"""
+    maxk = max(topk)
+    batch_size = target.size(0)
+
+    _, pred = output.topk(maxk, 1, True, True)
+    pred = pred.t()
+    correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+    res = []
+    for k in topk:
+        correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+        res.append(correct_k.mul_(100.0 / batch_size))
+    return res
+
 def get_multilabel_accuracy(pred, target):
     """ Calculate multilabel accuracy.
 
@@ -45,6 +83,18 @@ def save_model(model_state, filename):
     """ Save model """
     # TODO: add it as checkpoint
     torch.save(model_state,filename)
+
+def adjust_learning_rate(optimizer, epoch):
+    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
+    lr = args.lr * (0.1 ** (epoch // 30))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+
+
+
+
+###                PIL Image Transformations
 
 class RandomVerticalFlip(object):
     """Horizontally flip the given PIL.Image randomly with a probability of 0.5."""
